@@ -5189,7 +5189,7 @@
             ctx.setFillStyle(fillColor).fillRect(x1, y1, x2 - x1, y2 - y1);
         }
 
-        ctx.setLineWidth(isDashLine ? 1 : 2).setStrokeStyle(strokeColor);
+        ctx.setLineWidth(AscCommon.AscBrowser.convertToRetinaValue(isDashLine ? 1 : 2, true)).setStrokeStyle(strokeColor);
 
         ctx.beginPath();
         if (drawTopSide && !firstRow) {
