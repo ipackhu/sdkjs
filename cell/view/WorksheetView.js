@@ -5191,18 +5191,24 @@
 
         ctx.setLineWidth(AscCommon.AscBrowser.convertToRetinaValue(isDashLine ? 1 : 2, true)).setStrokeStyle(strokeColor);
 
+        var widthLine = AscCommon.AscBrowser.convertToRetinaValue(isDashLine ? 1 : 2, true);
+        ctx.setLineWidth(widthLine).setStrokeStyle(strokeColor);
+        var diff = Math.floor(widthLine / 2) + 1;
+        var diffRight = Math.ceil(widthLine / 2);
+        var isRetina = AscCommon.AscBrowser.convertToRetinaValue(1, true) > 1;
+
         ctx.beginPath();
         if (drawTopSide && !firstRow) {
-            fHorLine.apply(ctx, [x1 - !isDashLine * 2, y1, x2 + !isDashLine * 1]);
+            fHorLine.apply(ctx, [x1 - diff, y1, x2 + diffRight]);
         }
         if (drawBottomSide) {
-            fHorLine.apply(ctx, [x1, y2 + !isDashLine * 1, x2]);
+            fHorLine.apply(ctx, [x1 - diff, y2 + !isDashLine * 1, x2 + diffRight]);
         }
         if (drawLeftSide && !firstCol) {
-            fVerLine.apply(ctx, [x1, y1, y2 + !isDashLine * 1]);
+            fVerLine.apply(ctx, [x1, y1 - diff, y2 + diffRight]);
         }
         if (drawRightSide) {
-            fVerLine.apply(ctx, [x2 + !isDashLine * 1, y1, y2 + !isDashLine * 1]);
+            fVerLine.apply(ctx, [x2 + !isDashLine * 1, y1 - diff, y2 + diffRight]);
         }
         ctx.closePath().stroke();
 
@@ -5217,8 +5223,8 @@
 			    var left = this._getColLeft(fs.c1);
 				var _x1 = left - offsetX + 1;
 				var _y1 = top - offsetY + 1;
-				var _w = this._getColLeft(fs.c2 + 1) - left - 2;
-				var _h = this._getRowTop(fs.r2 + 1) - top - 2;
+				var _w = this._getColLeft(fs.c2 + 1) - left - 2 - isRetina * 1;
+				var _h = this._getRowTop(fs.r2 + 1) - top - 2 - isRetina * 1;
 				if (0 < _w && 0 < _h) {
 					ctx.clearRect(_x1, _y1, _w, _h);
 				}
@@ -5227,7 +5233,7 @@
 
         if (canFill) {/*Отрисовка светлой полосы при выборе ячеек для формулы*/
             ctx.setLineWidth(1);
-            ctx.setStrokeStyle(colorN);
+            ctx.setStrokeStyle(/*new CColor(50, 22, 202)*/colorN);
             ctx.beginPath();
             if (drawTopSide) {
                 fHorLine.apply(ctx, [x1, y1 + 1, x2 - 1]);
@@ -5572,6 +5578,7 @@
 
         this._activateOverlayCtx();
         var t = this;
+		var isRetinaWidth = AscCommon.AscBrowser.convertToRetinaValue(1, true) > 1;
         var selectionRange = this.model.getSelection();
         selectionRange.ranges.forEach(function (item, index) {
             var arnIntersection = item.intersectionSimple(range);
@@ -5579,7 +5586,7 @@
                 _x1 = t._getColLeft(arnIntersection.c1) - offsetX - 3;
                 _x2 = t._getColLeft(arnIntersection.c2 + 1) - offsetX +
                   1 + /* Это ширина "квадрата" для автофильтра от границы ячейки */2;
-                _y1 = t._getRowTop(arnIntersection.r1) - offsetY - 2;
+                _y1 = t._getRowTop(arnIntersection.r1) - offsetY - 2 - isRetinaWidth * 1;
                 _y2 = t._getRowTop(arnIntersection.r2 + 1) - offsetY +
                   1 + /* Это высота "квадрата" для автофильтра от границы ячейки */2;
 
