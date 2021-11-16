@@ -26031,6 +26031,9 @@ CDocument.prototype.ConvertLaTeXToMath = function(sText)
 		this.Recalculate();
 		this.UpdateInterface();
 		this.FinalizeAction();
+
+		//temporally
+		oMath.ConvertToLaTeX()
 	}
 };
 
