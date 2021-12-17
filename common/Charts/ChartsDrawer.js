@@ -1433,8 +1433,8 @@ CChartsDrawer.prototype =
 			//если будут проблемы, протестить со старой функцией -> this._getAxisValues(false, minMaxAxis.min, minMaxAxis.max, chartSpace)
 			axObj.scale = this._roundValues(this._getAxisValues2(axObj, chartSpace, isStackedType));
 
-			if(isStackedType) {
-				//для случая 100% stacked - если макс/мин равно определенному делению, большие/меньшие - убираем
+			if(isStackedType && !axObj.scaling.logBase) {
+				//для случая 100% stacked - если макс/мин равно определенному делению, большие/меньшие - убираем, логарифмическая шкала - исключение
 				if(axObj.scale[0] !== 0 && axObj.min === axObj.scale[1]) {
 					axObj.scale.splice(0, 1);
 				}
@@ -5678,40 +5678,48 @@ drawBarChart.prototype = {
 			this.catAx.posY * this.chartProp.pxToMM;
 		var h;
 		if (this.subType === "stacked") {
-			curVal = this._getStackedValue(this.chart.series, i, j, val);
 			prevVal = this._getStackedValue(this.chart.series, i - 1, j, val);
-
-			endBlockPosition = this.cChartDrawer.getYPosition(curVal, this.valAx, null, true) * this.chartProp.pxToMM;
 			startBlockPosition = prevVal ? this.cChartDrawer.getYPosition(prevVal, this.valAx, null, true) * this.chartProp.pxToMM : nullPositionOX;
 
 			startY = startBlockPosition;
-			height = startBlockPosition - endBlockPosition;
+			if (this.valAx && this.valAx.scaling.logBase && val < 0) {
+				height = 0;
+			} else {
+				curVal = this._getStackedValue(this.chart.series, i, j, val);
+				endBlockPosition = this.cChartDrawer.getYPosition(curVal, this.valAx, null, true) * this.chartProp.pxToMM;
+				height = startBlockPosition - endBlockPosition;
 
-			if (this.valAx.scaling.orientation != ORIENTATION_MIN_MAX) {
-				height = -height;
+				if (this.valAx.scaling.orientation !== ORIENTATION_MIN_MAX) {
+					height = -height;
+				}
 			}
 		} else if (this.subType === "stackedPer") {
-
-			curVal = this._getStackedValue(this.chart.series, i, j, val);
 			prevVal = this._getStackedValue(this.chart.series, i - 1, j, val);
 
 			this._calculateSummStacked(j);
-			endBlockPosition = this.cChartDrawer.getYPosition((curVal / this.summBarVal[j]), this.valAx, null, true) * this.chartProp.pxToMM;
-			startBlockPosition = this.summBarVal[j] ? this.cChartDrawer.getYPosition((prevVal / this.summBarVal[j]), this.valAx, null, true) * this.chartProp.pxToMM : nullPositionOX;
+			if (this.valAx.scaling.logBase && i === 0 || !this.summBarVal[j]) {
+				startBlockPosition = nullPositionOX;
+			} else {
+				startBlockPosition = this.cChartDrawer.getYPosition((prevVal / this.summBarVal[j]), this.valAx, null, true) * this.chartProp.pxToMM;
+			}
 
 			startY = startBlockPosition;
-			height = startBlockPosition - endBlockPosition;
+			if (this.valAx && this.valAx.scaling.logBase && val < 0) {
+				height = 0;
+			} else {
+				curVal = this._getStackedValue(this.chart.series, i, j, val);
+				endBlockPosition = this.cChartDrawer.getYPosition((curVal / this.summBarVal[j]), this.valAx, null, true) * this.chartProp.pxToMM;
+				height = startBlockPosition - endBlockPosition;
 
-			if (this.valAx.scaling.orientation !== ORIENTATION_MIN_MAX) {
-				height = -height;
+				if (this.valAx.scaling.orientation !== ORIENTATION_MIN_MAX) {
+					height = -height;
+				}
 			}
 
 		} else {
 			startY = nullPositionOX;
-			if (this.valAx && this.valAx.scaling.logBase)//исключение для логарифмической шкалы
-			{
-				height = nullPositionOX - this.cChartDrawer.getYPosition(val, this.valAx, null, true) *
-					this.chartProp.pxToMM;
+			if (this.valAx && this.valAx.scaling.logBase && val < 0) { //исключение для логарифмической шкалы
+				height = 0;
 			} else {
 				height = nullPositionOX - this.cChartDrawer.getYPosition(val, this.valAx, null, true) *
 					this.chartProp.pxToMM;
