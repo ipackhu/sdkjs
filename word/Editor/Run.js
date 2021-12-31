@@ -5895,15 +5895,14 @@ ParaRun.prototype.Draw_HighLights = function(PDSH)
             case para_Space:
             {
                 // Пробелы в конце строки (и строку состоящую из пробелов) не подчеркиваем, не зачеркиваем и не выделяем
-                
+                if ( PDSH.Spaces > 0 )
                 {
                     if ( CommentsFlag != AscCommon.comments_NoComment )
                         aComm.Add( Y0, Y1, X, X + ItemWidthVisible, 0, 0, 0, 0, { Active : CommentsFlag === AscCommon.comments_ActiveComment ? true : false, CommentId : arrComments } );
                     else if ( highlight_None != HighLight )
                         aHigh.Add( Y0, Y1, X, X + ItemWidthVisible, 0, HighLight.r, HighLight.g, HighLight.b, undefined, HighLight );
 
-					if ( PDSH.Spaces > 0 )
-						PDSH.Spaces--;
+					PDSH.Spaces--;
                 }
 
                 if ( true === DrawSearch )
@@ -6631,7 +6630,7 @@ ParaRun.prototype.Draw_Lines = function(PDSL)
 			case para_Space:
 			{
 				// Пробелы, идущие в конце строки, не подчеркиваем и не зачеркиваем
-				if (PDSL.Spaces > 0)
+				
 				{
 					if (true === bRemReview)
 					{
@@ -6664,7 +6663,8 @@ ParaRun.prototype.Draw_Lines = function(PDSL)
 						aUnderline.Add(UnderlineY, UnderlineY, X, X + ItemWidthVisible, LineW, CurColor.r, CurColor.g, CurColor.b, undefined, CurTextPr);
 					}
 
-					PDSL.Spaces--;
+					if (PDSL.Spaces > 0)
+						PDSL.Spaces--;
 				}
 
 				X += ItemWidthVisible;
